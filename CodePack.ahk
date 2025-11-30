@@ -79,14 +79,14 @@ Initialize()
         }
 
         matches := []
-        files := []
+        filePaths := []
         pos := 1
 
         while RegExMatch(clip, "s)===([^\r\n]+)===(.*?)(?=(?:\R===|$))", &m, pos) {
             path := tmpDir Trim(StrReplace(m[1], "/", "\"))
             content := Trim(RegExReplace(m[2], "^\R"))
             matches.Push({path: path, content: content})
-            files.Push(path)
+            filePaths.Push(path)
             pos := m.Pos(0) + m.Len(0)
         }
 
@@ -104,7 +104,7 @@ Initialize()
             f.Close()
         }
 
-        FilesToClipboard(files)
+        FilesToClipboard(filePaths, tmpDir)
         Send "^v"
 
         ClipboardHistory.PutHistoryItemIntoClipboard(1)
