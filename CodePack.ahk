@@ -10,7 +10,7 @@ Initialize()
 
 !c:: {
     try {
-        tmpDir := A_Temp "\CodePack\Metadata\"
+        tmpDir := A_Temp "\CodePack\Copy\"
         DirCreate tmpDir
 
         Send "^c"
@@ -19,7 +19,7 @@ Initialize()
             files := DetectClipboardFiles()
             if files.Length {
                 relPaths := GetRelativePaths(files)
-                tmpFile := tmpDir "metadata.txt"
+                tmpFile := tmpDir "manifest.txt"
                 f := FileOpen(tmpFile, "w", "UTF-8")
                 for i, path in files {
                     if DirExist(path) {
@@ -57,7 +57,7 @@ Initialize()
 !v:: {
     try {
         clip := 0
-        tmpDir := A_Temp "\CodePack\Paste Files\"
+        tmpDir := A_Temp "\CodePack\Paste\"
         DirCreate tmpDir
 
         if DllCall("IsClipboardFormatAvailable", "UInt", 0xF) {
@@ -70,7 +70,7 @@ Initialize()
 
             clip := FileRead(files[1], "UTF-8")
         } else if DllCall("IsClipboardFormatAvailable", "UInt", 13) {
-            clip := A_Clipboard
+            clip := ClipboardHistory.GetHistoryItemText(1)
         }
 
         if !clip {
@@ -83,7 +83,7 @@ Initialize()
         pos := 1
 
         while RegExMatch(clip, "s)===([^\r\n]+)===(.*?)(?=(?:\R===|$))", &m, pos) {
-            path := tmpDir Trim(m[1])
+            path := tmpDir Trim(StrReplace(m[1], "/", "\"))
             content := Trim(RegExReplace(m[2], "^\R"))
             matches.Push({path: path, content: content})
             files.Push(path)
@@ -106,13 +106,8 @@ Initialize()
 
         FilesToClipboard(files)
         Send "^v"
-        Sleep 100
-        Send "{Enter}"
-        Sleep 400
-        Send "+{F10}"
 
         ClipboardHistory.PutHistoryItemIntoClipboard(1)
-        DirDelete tmpDir, true
     } catch as err {
         msg := "Error occurred:`n"
         for prop, val in err.OwnProps()
@@ -211,7 +206,7 @@ HasValue(arr, val) {
 }
 
 Initialize() {
-    tmpDir := A_Temp "\CodePack\Icons"
+    tmpDir := A_Temp "\CodePack\Icons\"
     DirCreate tmpDir
 
     FileInstall "Icons\favicon.ico", tmpDir "favicon.ico", true
