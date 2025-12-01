@@ -58,6 +58,9 @@ Initialize()
     try {
         clip := 0
         tmpDir := A_Temp "\CodePack\Paste\"
+        if DirExist(tmpDir) {
+            DirDelete tmpDir, true
+        }
         DirCreate tmpDir
 
         if DllCall("IsClipboardFormatAvailable", "UInt", 0xF) {
@@ -107,7 +110,7 @@ Initialize()
         FilesToClipboard(filePaths, tmpDir)
         Send "^v"
 
-        ClipboardHistory.PutHistoryItemIntoClipboard(1)
+        A_Clipboard := ClipboardHistory.GetHistoryItemText(1)
     } catch as err {
         msg := "Error occurred:`n"
         for prop, val in err.OwnProps()
